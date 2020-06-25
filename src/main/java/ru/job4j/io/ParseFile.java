@@ -14,32 +14,41 @@ public class ParseFile {
         return file;
     }
 
-    public synchronized String getContent() throws IOException {
-        InputStream i = new FileInputStream(file);
+    public synchronized String getContent() {
         StringBuilder output = new StringBuilder();
-        int data;
-        while ((data = i.read()) > 0) {
-            output.append((char) data);
-        }
-        return output.toString();
-    }
-
-    public synchronized String getContentWithoutUnicode() throws IOException {
-        InputStream i = new FileInputStream(file);
-        StringBuilder output = new StringBuilder();
-        int data;
-        while ((data = i.read()) > 0) {
-            if (data < 0x80) {
+        try(InputStream i = new FileInputStream(file)) {
+            int data;
+            while ((data = i.read()) > 0) {
                 output.append((char) data);
             }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
         return output.toString();
     }
 
-    public synchronized void saveContent(String content) throws IOException {
-        OutputStream o = new FileOutputStream(file);
-        for (int i = 0; i < content.length(); i += 1) {
-            o.write(content.charAt(i));
+    public synchronized String getContentWithoutUnicode() {
+        StringBuilder output = new StringBuilder();
+        try(InputStream i = new FileInputStream(file)) {
+            int data;
+            while ((data = i.read()) > 0) {
+                if (data < 0x80) {
+                    output.append((char) data);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return output.toString();
+    }
+
+    public synchronized void saveContent(String content) {
+        try(OutputStream o = new FileOutputStream(file)) {
+            for (int i = 0; i < content.length(); i += 1) {
+                o.write(content.charAt(i));
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
     }
 }

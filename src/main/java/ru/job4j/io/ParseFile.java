@@ -43,7 +43,8 @@ public class ParseFile {
     }
 
     public synchronized void saveContent(String content) {
-        try (OutputStream o = new FileOutputStream(file)) {
+        try (OutputStream o = new FileOutputStream(file, true)) {
+            content = String.format("%s%s", System.lineSeparator(), content);
             for (int i = 0; i < content.length(); i += 1) {
                 o.write(content.charAt(i));
             }

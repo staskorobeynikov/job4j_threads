@@ -24,17 +24,17 @@ public class ParseFile {
     }
 
     private synchronized String getContent(Predicate<Integer> condition) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         try (InputStream i = new FileInputStream(file)) {
             int data;
             while ((data = i.read()) > 0) {
                 if (condition.test(data)) {
-                    buffer.append((char) data);
+                    builder.append((char) data);
                 }
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        return buffer.toString();
+        return builder.toString();
     }
 }

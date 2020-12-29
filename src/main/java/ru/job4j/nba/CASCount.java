@@ -2,21 +2,26 @@ package ru.job4j.nba;
 
 import net.jcip.annotations.ThreadSafe;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @ThreadSafe
-public class CASCount<T> {
+public class CASCount {
+    private final AtomicInteger count = new AtomicInteger();
 
-    private final AtomicReference<Integer> count = new AtomicReference<>();
+    public CASCount() {
+        count.set(0);
+    }
 
     public void increment() {
-        int result;
+        int exValue;
+        int newValue;
         do {
-            result = count.get();
-        } while (count.compareAndSet(result, result + 1));
+            exValue = count.get();
+            newValue = exValue + 1;
+        } while (!count.compareAndSet(exValue, newValue));
     }
 
     public int get() {
-       return count.get();
+        return count.get();
     }
 }

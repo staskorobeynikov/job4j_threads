@@ -30,13 +30,12 @@ public class ParallelSearchIndex<T> extends RecursiveTask<Integer> {
     protected Integer compute() {
         if ((finish - start) <= array.length / THRESHOLD) {
             return indexOf();
-        } else {
-            return ForkJoinTask.invokeAll(createTasks())
-                    .stream()
-                    .mapToInt(ForkJoinTask::join)
-                    .max()
-                    .orElse(-1);
         }
+        return ForkJoinTask.invokeAll(createTasks())
+                .stream()
+                .mapToInt(ForkJoinTask::join)
+                .max()
+                .orElse(-1);
     }
 
     private Collection<ParallelSearchIndex<T>> createTasks() {

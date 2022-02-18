@@ -9,26 +9,32 @@ public class WGetApplication {
 
     public static void main(String[] args) throws InterruptedException {
         if (args.length < 2) {
-            System.out.println("Check your args parameter for launch application.");
-        } else {
-            String file = args[args.length - 2];
-            String speed = args[args.length - 1];
-            new WGetApplication().downloadFile(file, Integer.parseInt(speed));
+            throw new IllegalArgumentException("Check your args parameter for launch application.");
         }
+        String file = args[args.length - 2];
+        String speed = args[args.length - 1];
+        String fileName = getFileName(file);
+        long start = System.currentTimeMillis();
+        new WGetApplication().downloadFile(file, Integer.parseInt(speed), fileName);
+        long finish = System.currentTimeMillis();
+        System.out.println(finish - start);
     }
 
-    public void downloadFile(String file, int speed) throws InterruptedException {
-        String fileName = getFileName(file);
+    public void downloadFile(String file, int speed, String fileName) throws InterruptedException {
         try (BufferedInputStream in = new BufferedInputStream(new URL(file).openStream());
              FileOutputStream fileOutputStream = new FileOutputStream(fileName)) {
-            byte[] dataBuffer = new byte[speed * 1024];
+            byte[] dataBuffer = new byte[1024];
             int bytesRead;
+            long dataDownload = 0;
             long start = System.currentTimeMillis();
-            while ((bytesRead = in.read(dataBuffer, 0, speed * 1024)) != -1) {
-                long finish = System.currentTimeMillis();
-                System.out.println(finish - start);
-                if (finish - start > 1000) {
-                    Thread.sleep(finish - start);
+            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                dataDownload += bytesRead;
+                if (dataDownload >= speed) {
+                    long interval = System.currentTimeMillis() - start;
+                    if (interval < 1000) {
+                        Thread.sleep(1000 - interval);
+                    }
+                    dataDownload = 0;
                     start = System.currentTimeMillis();
                 }
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
@@ -38,7 +44,7 @@ public class WGetApplication {
         }
     }
 
-    private String getFileName(String file) {
+    private static String getFileName(String file) {
         String[] splitURL = file.split("/");
         String[] splitFileName = splitURL[splitURL.length - 1].split("\\.");
         return String.format(
